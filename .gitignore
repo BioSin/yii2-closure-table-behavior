@@ -1,1 +1,6 @@
+# PHPStorm project files
 .idea
+
+# ST2 project files
+*.sublime-project
+*.sublime-workspace
