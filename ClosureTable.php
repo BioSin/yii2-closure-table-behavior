@@ -2,7 +2,7 @@
 /**
  * @author Valentin Konusov <rlng-krsk@yandex.ru>
  * @copyright Copyright (c) 2014 Valentin Konusov
- * @license http://opensource.org/licenses/BSD-3-Clause
+ * @license http://opensource.org/licenses/MIT
  * @link https://github.com/BioSin/yii2-closure-table-behavior
  * @version 0.1.0
  */

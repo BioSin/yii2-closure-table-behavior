@@ -2,7 +2,7 @@
 /**
  * @author Valentin Konusov <rlng-krsk@yandex.ru>
  * @copyright Copyright (c) 2014 Valentin Konusov
- * @license http://opensource.org/licenses/BSD-3-Clause
+ * @license http://opensource.org/licenses/MIT
  * @link https://github.com/BioSin/yii2-closure-table-behavior
  * @version 0.1.0
  */
@@ -17,7 +17,7 @@ use yii\base\InvalidConfigException;
 class ClosureTableQuery extends Behavior
 {
 
-	/**
+    /**
      * @var
      */
     public $closureTableName;
@@ -47,18 +47,18 @@ class ClosureTableQuery extends Behavior
      */
     public $owner;
 
-	/**
+    /**
      * @inheritdoc
      */
     public function attach($owner)
     {
         parent::attach($owner);
 
-        if($this->closureTableName == null)
+        if ($this->closureTableName == null)
             throw new InvalidConfigException('Closure table name is not configured!');
     }
 
-	/**
+    /**
      * Find roots
      * @return yii\db\ActiveQuery
      */
@@ -70,13 +70,14 @@ class ClosureTableQuery extends Behavior
         $childAttribute = $db->quoteColumnName($this->childAttribute);
         $parentAttribute = $db->quoteColumnName($this->parentAttribute);
         $query->join('LEFT JOIN',
-            $this->closureTableName.' as ct1',
-            $primaryKeyName."=ct1.".$childAttribute);
+            $this->closureTableName . ' as ct1',
+            $primaryKeyName . "=ct1." . $childAttribute);
         $query->join('LEFT JOIN',
-            $this->closureTableName.' as ct2',
-            'ct1.'.$childAttribute.'=ct2.'.$childAttribute
-            .' AND ct2.'.$parentAttribute.' <> ct1.'.$parentAttribute);
-        $query->andWhere('ct2.' . $parentAttribute.' IS NULL');
+            $this->closureTableName . ' as ct2',
+            'ct1.' . $childAttribute . '=ct2.' . $childAttribute
+            . ' AND ct2.' . $parentAttribute . ' <> ct1.' . $parentAttribute);
+        $query->andWhere('ct2.' . $parentAttribute . ' IS NULL');
 
         return $query;
     }
+}
