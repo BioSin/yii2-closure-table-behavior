@@ -7,7 +7,7 @@
  * @version 0.1.0
  */
 
-namespace ValentineK\behaviors;
+namespace valentinek\behaviors;
 
 use yii;
 use yii\base\Behavior;

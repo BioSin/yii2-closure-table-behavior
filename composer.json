@@ -1,5 +1,5 @@
 {
-	"name": "ValentineK/yii2-closure-table-behavior",
+	"name": "valentinek/yii2-closure-table-behavior",
 	"description": "This extension allows you to get functional for closure table trees.",
 	"keywords": ["yii", "extension", "behavior", "closure table"],
 	"homepage": "https://github.com/BioSin/yii2-closure-table-behavior",
@@ -17,7 +17,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"ValentineK\\behaviors\\": ""
+			"valentinek\\behaviors\\": ""
 		}
 	}
 }
