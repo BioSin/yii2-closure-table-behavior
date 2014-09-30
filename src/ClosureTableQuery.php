@@ -64,9 +64,10 @@ class ClosureTableQuery extends Behavior
      */
     public function roots()
     {
-        $query = $this->owner->find();
-        $db = $this->owner->getDb();
-        $primaryKeyName = $db->quoteColumnName($this->owner->primaryKey()[0]);
+        $modelClass = $this->owner->modelClass;
+        $query = $this->owner;
+        $db = $modelClass::getDb();
+        $primaryKeyName = $db->quoteColumnName($modelClass::primaryKey()[0]);
         $childAttribute = $db->quoteColumnName($this->childAttribute);
         $parentAttribute = $db->quoteColumnName($this->parentAttribute);
         $query->join('LEFT JOIN',
