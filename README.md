@@ -34,14 +34,14 @@ class Category extends ActiveRecord
 		return [
 			[
 				'class' => ClosureTable::className(),
-				'closureTableName' => 'category_tree'
+				'tableName' => 'category_tree'
 			],
 		];
 	}
 
 	public static function find()
 	{
-		return new CategoryQuery(get_called_class());
+		return new CategoryQuery(static::className());
 	}
 }
 ```
@@ -55,7 +55,7 @@ class CategoryQuery extends ActiveQuery
 		return [
 			[
 				'class' => ClosureTableQuery::className(),
-				'closureTableName' => 'category_tree'
+				'tableName' => 'category_tree'
 			],
 		];
 	}

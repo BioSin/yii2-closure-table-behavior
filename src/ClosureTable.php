@@ -17,9 +17,9 @@ use yii\base\InvalidConfigException;
 class ClosureTable extends Behavior
 {
     /**
-     * @var
+     * @var closure table name
      */
-    public $closureTableName;
+    public $tableName;
 
     /**
      * @var string
@@ -53,7 +53,7 @@ class ClosureTable extends Behavior
     {
         parent::attach($owner);
 
-        if($this->closureTableName == null)
+        if($this->tableName == null)
             throw new InvalidConfigException('Closure table name is not configured!');
     }
 
@@ -71,7 +71,7 @@ class ClosureTable extends Behavior
         $parentAttribute = $db->quoteColumnName($this->parentAttribute);
         $depthAttribute = $db->quoteColumnName($this->depthAttribute);
         $query->join('INNER JOIN',
-            $this->closureTableName.' as ct1',
+            $this->tableName.' as ct1',
             'ct1.'.$childAttribute = $primaryKeyName);
         $query->andWhere('ct1.'.$parentAttribute . '=' . $db->quoteValue($primaryKey));
         $query->addSelect('ct1.' . $depthAttribute);
@@ -179,7 +179,7 @@ class ClosureTable extends Behavior
         $parentAttribute = $db->quoteColumnName($this->parentAttribute);
         $primaryKeyName = $db->quoteColumnName($this->owner->primaryKey()[0]);
         $query->join('INNER JOIN',
-            $this->closureTableName.' as ctp',
+            $this->tableName.' as ctp',
             'ctp.' . $parentAttribute . '=' . $primaryKeyName);
         $query->andWhere('ctp' . $childAttribute . '=' . $db->quoteValue($primaryKey));
 
@@ -226,9 +226,9 @@ class ClosureTable extends Behavior
         $depthAttribute = $db->quoteColumnName($this->depthAttribute);
         $primaryKeyName = $db->quoteColumnName($this->owner->primaryKey()[0]);
         $query->join('INNER JOIN',
-            $this->closureTableName . ' as ct1');
+            $this->tableName . ' as ct1');
         $query->join('INNER JOIN',
-            $this->closureTableName . ' as ct2',
+            $this->tableName . ' as ct2',
             'ct1.' . $parentAttribute .' = ct2.' . $parentAttribute
             . ' AND ' . $primaryKeyName . ' = ct2.' . $childAttribute
             . ' AND ct2.' . $depthAttribute . ' = 1'
@@ -266,7 +266,7 @@ class ClosureTable extends Behavior
         }
 
         $query->join('LEFT JOIN',
-            $this->closureTableName . ' as ctleaf',
+            $this->tableName . ' as ctleaf',
             'ctleaf.' . $parentAttribute . '=' . $primaryKeyName
             . ' AND ctleaf.' . $parentAttribute . '!= ctleaf.' . $childAttribute
         );
@@ -324,7 +324,7 @@ class ClosureTable extends Behavior
     {
         $db = $this->owner->getDb();
 
-        return $db->createCommand()->insert($this->closureTableName, [
+        return $db->createCommand()->insert($this->tableName, [
             $this->parentAttribute => $primaryKey,
             $this->childAttribute => $primaryKey,
             $this->depthAttribute => 0
@@ -344,7 +344,7 @@ class ClosureTable extends Behavior
         $childAttribute = $db->quoteColumnName($this->childAttribute);
         $parentAttribute = $db->quoteColumnName($this->parentAttribute);
         $depthAttribute = $db->quoteColumnName($this->depthAttribute);
-        $closureTableName = $db->quoteTableName($this->closureTableName);
+        $tableName = $db->quoteTableName($this->tableName);
 
         $primaryKey = ($target instanceof ActiveRecord)
             ? $target->primaryKey
@@ -358,10 +358,10 @@ class ClosureTable extends Behavior
             : $node;
 
         $cmd = $db->createCommand(
-            'INSERT INTO ' . $closureTableName . ' '
+            'INSERT INTO ' . $tableName . ' '
             . '('.$parentAttribute.','.$childAttribute.','.$depthAttribute.') '
             . 'SELECT ' . $parentAttribute .', :nodeId' . ', ' . $depthAttribute . '+1 '
-            . 'FROM ' . $closureTableName . ' WHERE ' . $childAttribute . '= :pk'
+            . 'FROM ' . $tableName . ' WHERE ' . $childAttribute . '= :pk'
             . 'UNION ALL SELECT :nodeId, :nodeId, \'0\''
         );
 
@@ -403,13 +403,13 @@ class ClosureTable extends Behavior
         $childAttribute = $db->quoteColumnName($this->childAttribute);
         $parentAttribute = $db->quoteColumnName($this->parentAttribute);
         $depthAttribute = $db->quoteColumnName($this->depthAttribute);
-        $closureTableName = $db->quoteTableName($this->closureTableName);
+        $tableName = $db->quoteTableName($this->tableName);
 
         $transaction = $db->beginTransaction();
         try {
-            $sql = "DELETE ct1 FROM ".$closureTableName." ct1 "
-                . "INNER JOIN ".$closureTableName." ct2 ON ct1.".$childAttribute." = ct2.".$childAttribute
-                . "LEFT JOIN ".$closureTableName." ct3 ON ct3.".$parentAttribute." = ct2.".$parentAttribute
+            $sql = "DELETE ct1 FROM ".$tableName." ct1 "
+                . "INNER JOIN ".$tableName." ct2 ON ct1.".$childAttribute." = ct2.".$childAttribute
+                . "LEFT JOIN ".$tableName." ct3 ON ct3.".$parentAttribute." = ct2.".$parentAttribute
                 . "AND ct3.".$childAttribute." = ct1.".$parentAttribute
                 ." WHERE ct2.".$parentAttribute." = :nodeId AND ct3.".$parentAttribute." IS NULL";
 
@@ -417,10 +417,10 @@ class ClosureTable extends Behavior
                 throw new \Exception('Node had no records in closure table', 200);
             }
 
-            $sql = "INSERT INTO " . $closureTableName . " (" . $parentAttribute . "," . $childAttribute . "," . $depthAttribute . ")"
+            $sql = "INSERT INTO " . $tableName . " (" . $parentAttribute . "," . $childAttribute . "," . $depthAttribute . ")"
                 . "SELECT ct1." . $parentAttribute . ", ct2." . $childAttribute
                 . ", ct1." . $depthAttribute . " + ct2." . $depthAttribute. "+1 "
-                . "FROM " . $closureTableName . " ct1 INNER JOIN " . $closureTableName . " ct2 "
+                . "FROM " . $tableName . " ct1 INNER JOIN " . $tableName . " ct2 "
                 . "WHERE ct2." . $parentAttribute . " = :nodeId AND ct1." . $childAttribute . " = :targetId";
 
             if(!$db->createCommand($sql)->bindValues([':nodeId'=>$nodeId, ':targetId'=>$targetId])->execute()) {
@@ -446,14 +446,14 @@ class ClosureTable extends Behavior
         $db = $this->owner->getDb();
         $childAttribute = $db->quoteColumnName($this->childAttribute);
         $parentAttribute = $db->quoteColumnName($this->parentAttribute);
-        $closureTableName = $db->quoteTableName($this->closureTableName);
+        $tableName = $db->quoteTableName($this->tableName);
         $primaryKeyName = $db->quoteColumnName($this->owner->primaryKey()[0]);
         if ($primaryKey === null) {
             $primaryKey = $this->owner->primaryKey;
         }
 
-        $sql = "DELETE ct1, t FROM " . $closureTableName . " ct1 "
-            . " INNER JOIN " . $closureTableName . " ct2 ON ct1." . $childAttribute . "= ct2." . $childAttribute
+        $sql = "DELETE ct1, t FROM " . $tableName . " ct1 "
+            . " INNER JOIN " . $tableName . " ct2 ON ct1." . $childAttribute . "= ct2." . $childAttribute
             . " INNER JOIN " . $this->owner->tableName() . " t ON ct1." . $childAttribute . "= t." . $primaryKeyName
             . " WHERE ct2." . $parentAttribute . "= :pk";
 
