@@ -4,3 +4,5 @@
 # ST2 project files
 *.sublime-project
 *.sublime-workspace
+tests/_output/*
+tests/_output/*
