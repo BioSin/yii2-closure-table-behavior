@@ -24,7 +24,7 @@
 	"autoload": {
 		"psr-4": {
 			"valentinek\\behaviors\\": "./src",
-			"valentinek\\tests\\": "./tests",
+			"valentinek\\tests\\": "./tests"
 		}
 	}
 }
