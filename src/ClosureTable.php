@@ -58,51 +58,15 @@ class ClosureTable extends Behavior
     }
 
     /**
-     * Find descendants
-     * @param $primaryKey
-     * @param int|null $depth the depth
-     * @return yii\db\ActiveQuery
-     */
-    public function descendantsOf($primaryKey, $depth = null)
-    {
-        $query = $this->owner->find();
-        $db = $this->owner->getDb();
-        $primaryKeyName = $db->quoteColumnName($this->owner->primaryKey()[0]);
-        $parentAttribute = $db->quoteColumnName($this->parentAttribute);
-        $depthAttribute = $db->quoteColumnName($this->depthAttribute);
-        $query->join('INNER JOIN',
-            $this->tableName.' as ct1',
-            'ct1.'.$childAttribute = $primaryKeyName);
-        $query->andWhere('ct1.'.$parentAttribute . '=' . $db->quoteValue($primaryKey));
-        $query->addSelect('ct1.' . $depthAttribute);
-
-        if ($depth === null) {
-            $query->andWhere('ct1.' . $childAttribute . '!=' . 'ct1.' . $parentAttribute);
-        } else {
-            $query->andWhere(['between', 'ct1.'.$depthAttribute, 1, intval($depth)]);
-        }
-
-        return $query;
-    }
-
-    /**
      * Named scope. Gets descendants for node.
      * @param int|null $depth
      * @return yii\db\ActiveQuery
      */
     public function descendants($depth = null)
     {
-        return $this->descendantsOf($this->owner->primaryKey, $depth);
-    }
+        $modelClass = $this->owner;
+        return $modelClass::find()->descendantsOf($this->owner->primaryKey, $depth);
 
-    /**
-     * Named scope. Gets children for node (direct descendants only).
-     * @param int|string $primaryKey
-     * @return yii\db\ActiveQuery
-     */
-    public function childrenOf($primaryKey)
-    {
-        return $this->descendantsOf($primaryKey, 1);
     }
 
     /**
@@ -116,45 +80,13 @@ class ClosureTable extends Behavior
 
     /**
      * Named scope. Gets ancestors for node.
-     * @param $primaryKey
-     * @param int|null $depth
-     * @return yii\db\ActiveQuery
-     */
-    public function ancestorsOf($primaryKey, $depth = null)
-    {
-        $query = $this->owner->find();
-        $db = $this->owner->getDb();
-        $childAttribute = $db->quoteColumnName($this->childAttribute);
-        $parentAttribute = $db->quoteColumnName($this->parentAttribute);
-        $depthAttribute = $db->quoteColumnName($this->depthAttribute);
-        $this->unorderedPathOf($primaryKey);
-        if ($depth === null) {
-            $query->andWhere('ctp.' . $childAttribute . '!=' . 'ctp.' . $parentAttribute);
-        } else {
-            $query->andWhere(['between', 'ctp.'.$depthAttribute, 1, intval($depth)]);
-        }
-
-        return $query;
-    }
-
-    /**
-     * Named scope. Gets ancestors for node.
      * @param int|null $depth
      * @return yii\db\ActiveQuery
      */
     public function ancestors($depth = null)
     {
-        return $this->ancestorsOf($this->owner->primaryKey, $depth);
-    }
-
-    /**
-     * Named scope. Gets parent of node.
-     * @param int|string $primaryKey
-     * @return yii\db\ActiveQuery
-     */
-    public function parentOf($primaryKey)
-    {
-        return $this->ancestorsOf($primaryKey, 1);
+        $modelClass = $this->owner;
+        return $modelClass::find()->ancestorsOf($this->owner->primaryKey, $depth);
     }
 
     /**
@@ -168,74 +100,12 @@ class ClosureTable extends Behavior
 
     /**
      * Named scope. Gets path to the node.
-     * @param $primaryKey
-     * @return yii\db\ActiveQuery
-     */
-    public function unorderedPathOf($primaryKey)
-    {
-        $query = $this->owner->find();
-        $db = $this->owner->getDb();
-        $childAttribute = $db->quoteColumnName($this->childAttribute);
-        $parentAttribute = $db->quoteColumnName($this->parentAttribute);
-        $primaryKeyName = $db->quoteColumnName($this->owner->primaryKey()[0]);
-        $query->join('INNER JOIN',
-            $this->tableName.' as ctp',
-            'ctp.' . $parentAttribute . '=' . $primaryKeyName);
-        $query->andWhere('ctp' . $childAttribute . '=' . $db->quoteValue($primaryKey));
-
-        return $query;
-    }
-
-    /**
-     * Named scope. Gets path to the node.
-     * @param int|string $primaryKey
-     * @return yii\db\ActiveQuery
-     */
-    public function pathOf($primaryKey)
-    {
-        $query = $this->owner->find();
-        $db = $this->owner->getDb();
-        $this->unorderedPathOf($primaryKey);
-        $query->addOrderBy('ctp.' . $db->quoteColumnName($this->depthAttribute) . ' DESC');
-
-        return $query;
-    }
-
-    /**
-     * Named scope. Gets path to the node.
      * @return yii\db\ActiveQuery
      */
     public function path()
     {
-        return $this->pathOf($this->owner->primaryKey);
-    }
-
-    /**
-     * Named scope. Get path with its children.
-     * Warning: root node isn't returned.
-     *
-     * @param int|string $primaryKey
-     * @return mixed
-     */
-    public function fullPathOf($primaryKey)
-    {
-        $query = $this->owner->find();
-        $db = $this->owner->getDb();
-        $childAttribute = $db->quoteColumnName($this->childAttribute);
-        $parentAttribute = $db->quoteColumnName($this->parentAttribute);
-        $depthAttribute = $db->quoteColumnName($this->depthAttribute);
-        $primaryKeyName = $db->quoteColumnName($this->owner->primaryKey()[0]);
-        $query->join('INNER JOIN',
-            $this->tableName . ' as ct1');
-        $query->join('INNER JOIN',
-            $this->tableName . ' as ct2',
-            'ct1.' . $parentAttribute .' = ct2.' . $parentAttribute
-            . ' AND ' . $primaryKeyName . ' = ct2.' . $childAttribute
-            . ' AND ct2.' . $depthAttribute . ' = 1'
-        );
-        $query->andWhere('ct1.' . $childAttribute . '=' . $db->quoteValue($primaryKey));
-
-        return $query;
+        $modelClass = $this->owner;
+        return $modelClass::find()->pathOf($this->owner->primaryKey);
     }
 
     /**
@@ -246,34 +116,8 @@ class ClosureTable extends Behavior
      */
     public function fullPath()
     {
-        return $this->fullPathOf($this->owner->primaryKey);
-    }
-
-    /**
-     * Named scope. Selects leaf column which indicates if record is a leaf
-     * @return yii\db\ActiveQuery
-     */
-    public function leaf()
-    {
-        $query = $this->owner->find();
-        $db = $this->owner->getDb();
-        $childAttribute = $db->quoteColumnName($this->childAttribute);
-        $parentAttribute = $db->quoteColumnName($this->parentAttribute);
-        $primaryKeyName = $db->quoteColumnName($this->owner->primaryKey()[0]);
-
-        if ($query->select === null) {
-            $query->addSelect("ISNULL(ctleaf." . $parentAttribute . ") AS " . $this->isLeafParameter);
-        }
-
-        $query->join('LEFT JOIN',
-            $this->tableName . ' as ctleaf',
-            'ctleaf.' . $parentAttribute . '=' . $primaryKeyName
-            . ' AND ctleaf.' . $parentAttribute . '!= ctleaf.' . $childAttribute
-        );
-
-        $query->addGroupBy($primaryKeyName);
-
-        return $query;
+        $modelClass = $this->owner;
+        return $modelClass::find()->fullPathOf($this->owner->primaryKey);
     }
 
     /**
@@ -315,20 +159,13 @@ class ClosureTable extends Behavior
     }
 
     /**
-     * Insert closure table records
-     * @param $primaryKey
+     * Mark current record as root
      * @return int
-     * @throws yii\db\Exception
+     * @throws \Exception
      */
-    public function markAsRoot($primaryKey)
+    public function markAsRoot()
     {
-        $db = $this->owner->getDb();
-
-        return $db->createCommand()->insert($this->tableName, [
-            $this->parentAttribute => $primaryKey,
-            $this->childAttribute => $primaryKey,
-            $this->depthAttribute => 0
-        ])->execute();
+        // TODO: Check record entry and mark as root
     }
 
     /**
@@ -361,7 +198,7 @@ class ClosureTable extends Behavior
             'INSERT INTO ' . $tableName . ' '
             . '('.$parentAttribute.','.$childAttribute.','.$depthAttribute.') '
             . 'SELECT ' . $parentAttribute .', :nodeId' . ', ' . $depthAttribute . '+1 '
-            . 'FROM ' . $tableName . ' WHERE ' . $childAttribute . '= :pk'
+            . 'FROM ' . $tableName . ' WHERE ' . $childAttribute . '= :pk '
             . 'UNION ALL SELECT :nodeId, :nodeId, \'0\''
         );
 
@@ -379,84 +216,19 @@ class ClosureTable extends Behavior
     }
 
     /**
-     * Move node
-     * @param ActiveRecord|int|string $target
-     * @param ActiveRecord|int|string $node if null, owner id will be used
-     * @throws \Exception
-     * @throws yii\db\Exception
-     */
-    public function moveTo($target, $node = null)
-    {
-        $db = $this->owner->getDb();
-
-        $targetId = ($target instanceof ActiveRecord)
-            ? $target->primaryKey
-            : $target;
-
-        if($node === null)
-            $node = $this->owner;
-
-        $nodeId = ($node instanceof ActiveRecord)
-            ? $node->primaryKey
-            : $node;
-
-        $childAttribute = $db->quoteColumnName($this->childAttribute);
-        $parentAttribute = $db->quoteColumnName($this->parentAttribute);
-        $depthAttribute = $db->quoteColumnName($this->depthAttribute);
-        $tableName = $db->quoteTableName($this->tableName);
-
-        $transaction = $db->beginTransaction();
-        try {
-            $sql = "DELETE ct1 FROM ".$tableName." ct1 "
-                . "INNER JOIN ".$tableName." ct2 ON ct1.".$childAttribute." = ct2.".$childAttribute
-                . "LEFT JOIN ".$tableName." ct3 ON ct3.".$parentAttribute." = ct2.".$parentAttribute
-                . "AND ct3.".$childAttribute." = ct1.".$parentAttribute
-                ." WHERE ct2.".$parentAttribute." = :nodeId AND ct3.".$parentAttribute." IS NULL";
-
-            if(!$db->createCommand($sql)->bindValue(':nodeId', $nodeId)->execute()) {
-                throw new \Exception('Node had no records in closure table', 200);
-            }
-
-            $sql = "INSERT INTO " . $tableName . " (" . $parentAttribute . "," . $childAttribute . "," . $depthAttribute . ")"
-                . "SELECT ct1." . $parentAttribute . ", ct2." . $childAttribute
-                . ", ct1." . $depthAttribute . " + ct2." . $depthAttribute. "+1 "
-                . "FROM " . $tableName . " ct1 INNER JOIN " . $tableName . " ct2 "
-                . "WHERE ct2." . $parentAttribute . " = :nodeId AND ct1." . $childAttribute . " = :targetId";
-
-            if(!$db->createCommand($sql)->bindValues([':nodeId'=>$nodeId, ':targetId'=>$targetId])->execute()) {
-                throw new \Exception("Target node does not exist", 201);
-            }
-
-            $transaction->commit();
-
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
      * Deletes node and it's descendants.
-     * @param int|string|null $primaryKey if null, owner id will be used
      * @return int number of rows deleted
      * @throws yii\db\Exception
      */
-    public function deleteNode($primaryKey = null)
+    public function deleteNode()
     {
-        $db = $this->owner->getDb();
-        $childAttribute = $db->quoteColumnName($this->childAttribute);
-        $parentAttribute = $db->quoteColumnName($this->parentAttribute);
-        $tableName = $db->quoteTableName($this->tableName);
-        $primaryKeyName = $db->quoteColumnName($this->owner->primaryKey()[0]);
-        if ($primaryKey === null) {
-            $primaryKey = $this->owner->primaryKey;
-        }
+        $modelClass = $this->owner;
+        return $modelClass::find()->deleteNode($this->owner->primaryKey);
+    }
 
-        $sql = "DELETE ct1, t FROM " . $tableName . " ct1 "
-            . " INNER JOIN " . $tableName . " ct2 ON ct1." . $childAttribute . "= ct2." . $childAttribute
-            . " INNER JOIN " . $this->owner->tableName() . " t ON ct1." . $childAttribute . "= t." . $primaryKeyName
-            . " WHERE ct2." . $parentAttribute . "= :pk";
-
-        return $db->createCommand($sql)->bindValue(':pk', $primaryKey)->execute();
+    public function moveTo($target, $node = null)
+    {
+        $modelClass = $this->owner;
+        return $modelClass::find()->moveTo($target, $this->owner->primaryKey);
     }
 }

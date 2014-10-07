@@ -30,6 +30,8 @@ First you need to configure model as follows:
 ```php
 class Category extends ActiveRecord
 {
+    public $leaf;
+
 	public function behaviors() {
 		return [
 			[
@@ -69,5 +71,7 @@ Road map
 1. Write documentation
 2. Write tests
 3. bug fixes
+4. Delete event
+5. DeleteNode method refactoring
 ~~~
 
