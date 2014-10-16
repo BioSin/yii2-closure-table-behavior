@@ -122,10 +122,10 @@ class ClosureTableQuery extends Behavior
      * Named scope. Gets ancestors for node.
      * @param $primaryKey
      * @param int|null $depth
-     * @param bool|string $orderDirection false if no order, and 'top' | 'bottom' if need ordering
+     * @param null|bool $reverseDirection null if no order
      * @return yii\db\ActiveQuery
      */
-    public function ancestorsOf($primaryKey, $depth = null, $orderDirection = null)
+    public function ancestorsOf($primaryKey, $depth = null, $reverseDirection = null)
     {
         $query = $this->owner;
         $modelClass = $query->modelClass;
@@ -134,8 +134,8 @@ class ClosureTableQuery extends Behavior
         $parentAttribute = $db->quoteColumnName($this->parentAttribute);
         $depthAttribute = $db->quoteColumnName($this->depthAttribute);
 
-        if($orderDirection !== null)
-            $query = $this->pathOf($primaryKey, $query, 'ctp', $orderDirection);
+        if($reverseDirection !== null)
+            $query = $this->pathOf($primaryKey, $query, 'ctp', $reverseDirection);
         else
             $query = $this->unorderedPathOf($primaryKey, $query, 'ctp');
 

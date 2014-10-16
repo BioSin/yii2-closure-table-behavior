@@ -81,12 +81,13 @@ class ClosureTable extends Behavior
     /**
      * Named scope. Gets ancestors for node.
      * @param int|null $depth
+     * @param null|bool $reverseDirection null if no order
      * @return yii\db\ActiveQuery
      */
-    public function ancestors($depth = null)
+    public function ancestors($depth = null, $reverseDirection = null)
     {
         $modelClass = $this->owner;
-        return $modelClass::find()->ancestorsOf($this->owner->primaryKey, $depth);
+        return $modelClass::find()->ancestorsOf($this->owner->primaryKey, $depth, $reverseDirection);
     }
 
     /**
