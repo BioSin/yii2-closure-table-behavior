@@ -122,9 +122,10 @@ class ClosureTableQuery extends Behavior
      * Named scope. Gets ancestors for node.
      * @param $primaryKey
      * @param int|null $depth
+     * @param bool|string $orderDirection false if no order, and 'top' | 'bottom' if need ordering
      * @return yii\db\ActiveQuery
      */
-    public function ancestorsOf($primaryKey, $depth = null)
+    public function ancestorsOf($primaryKey, $depth = null, $orderDirection = null)
     {
         $query = $this->owner;
         $modelClass = $query->modelClass;
@@ -132,7 +133,12 @@ class ClosureTableQuery extends Behavior
         $childAttribute = $db->quoteColumnName($this->childAttribute);
         $parentAttribute = $db->quoteColumnName($this->parentAttribute);
         $depthAttribute = $db->quoteColumnName($this->depthAttribute);
-        $query = $this->unorderedPathOf($primaryKey, $query, 'ctp');
+
+        if($orderDirection !== null)
+            $query = $this->pathOf($primaryKey, $query, 'ctp', $orderDirection);
+        else
+            $query = $this->unorderedPathOf($primaryKey, $query, 'ctp');
+
         if ($depth === null) {
             $query->andWhere('ctp.' . $childAttribute . '!=' . 'ctp.' . $parentAttribute);
         } else {
@@ -161,6 +167,11 @@ class ClosureTableQuery extends Behavior
             $tableAlias . '.' . $parentAttribute . '=' . $primaryKeyName);
         $query->andWhere($tableAlias . '.' . $childAttribute . '=' . $db->quoteValue($primaryKey));
 
+        if ($query->select === null) {
+            $query->addSelect('*');
+            $query->addSelect($tableAlias . "." . $this->depthAttribute);
+        }
+
         return $query;
     }
 
@@ -169,13 +180,15 @@ class ClosureTableQuery extends Behavior
      * @param int|string $primaryKey
      * @return yii\db\ActiveQuery
      */
-    public function pathOf($primaryKey)
+    public function pathOf($primaryKey, $query = null, $tableAlias = 'ctp', $reverseDirection = false)
     {
-        $query = $this->owner;
+        if(!$query instanceof yii\db\ActiveQuery)
+            $query = $this->owner;
+
         $modelClass = $query->modelClass;
         $db = $modelClass::getDb();
-        $query = $this->unorderedPathOf($primaryKey, $query, 'ctp');
-        $query->addOrderBy('ctp.' . $db->quoteColumnName($this->depthAttribute) . ' DESC');
+        $query = $this->unorderedPathOf($primaryKey, $query, $tableAlias);
+        $query->addOrderBy($tableAlias.'.' . $db->quoteColumnName($this->depthAttribute) . ' '.($reverseDirection ? 'ASC' : 'DESC'));
 
         return $query;
     }
