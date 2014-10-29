@@ -71,7 +71,8 @@ Road map
 1. Write documentation
 2. Write tests
 3. bug fixes
-4. Delete event
+4. EVENT_DELETE
 5. DeleteNode method refactoring
+6. isAncestor() and isDescendant() methods
 ~~~
 
