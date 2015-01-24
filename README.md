@@ -64,6 +64,18 @@ class CategoryQuery extends ActiveQuery
 }
 ```
 
+Migrations / Changing database schema
+--------------------------
+After configuring your model, you must copy migration file from behavior migrations folder 
+to your project migrations folder.
+Please read the comments in file, change migration as you need and run migration:
+
+```sh
+php yii migrate
+```
+
+Also you change database schema directly using an example from .sql dump file in schema folder.
+
 Road map
 --------------------------
 
