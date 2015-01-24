@@ -4,7 +4,6 @@
  * @copyright Copyright (c) 2014 Valentin Konusov
  * @license http://opensource.org/licenses/MIT
  * @link https://github.com/BioSin/yii2-closure-table-behavior
- * @version 0.1.0
  */
 
 namespace valentinek\behaviors;
@@ -161,12 +160,12 @@ class ClosureTable extends Behavior
 
     /**
      * Mark current record as root
-     * @return int
-     * @throws \Exception
+     * @return mixed
      */
     public function markAsRoot()
     {
-        // TODO: Check record entry and mark as root
+        $owner = $this->owner;
+        return $owner::find()->markAsRoot($owner->primaryKey);
     }
 
     /**
