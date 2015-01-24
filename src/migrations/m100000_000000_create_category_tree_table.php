@@ -10,7 +10,7 @@ class m100000_000000_create_category_tree_table extends Migration
 
     // Name of the table to which you connect the behavior
     public $relativeTbl = "category";
-    
+
     public function up()
     {
         $this->createTable("{{%{$this->closureTbl}}}", [
@@ -19,13 +19,13 @@ class m100000_000000_create_category_tree_table extends Migration
             "depth" => Schema::TYPE_INTEGER . " NOT NULL DEFAULT 0",
         ]);
         $this->addPrimaryKey("PK_{$this->closureTbl}", "{{%{$this->closureTbl}}}", ["parent", "child"]);
-        $this->createIndex("fk_{$this->closureTbl}_child_{$this->relativeTbl}", "{{%{$this->closureTbl}}}", "child");
-        $this->addForeignKey("fk_{$this->closureTbl}_child_{$this->relativeTbl}",
+        $this->createIndex("FK_{$this->closureTbl}_child_{$this->relativeTbl}", "{{%{$this->closureTbl}}}", "child");
+        $this->addForeignKey("FK_{$this->closureTbl}_child_{$this->relativeTbl}",
             "{{%{$this->closureTbl}}}", "child",
             "{{%{$this->relativeTbl}}}", "id",
             "CASCADE"
         );
-        $this->addForeignKey("fk_{$this->closureTbl}_parent_{$this->relativeTbl}",
+        $this->addForeignKey("FK_{$this->closureTbl}_parent_{$this->relativeTbl}",
             "{{%{$this->closureTbl}}}", "parent",
             "{{%{$this->relativeTbl}}}", "id",
             "CASCADE"
@@ -39,8 +39,8 @@ class m100000_000000_create_category_tree_table extends Migration
 
     public function down()
     {
-        $this->dropForeignKey("fk_{$this->closureTbl}_parent_{$this->relativeTbl}", "{{%{$this->closureTbl}}}");
-        $this->dropForeignKey("fk_{$this->closureTbl}_child_{$this->relativeTbl}", "{{%{$this->closureTbl}}}");
+        $this->dropForeignKey("FK_{$this->closureTbl}_parent_{$this->relativeTbl}", "{{%{$this->closureTbl}}}");
+        $this->dropForeignKey("FK_{$this->closureTbl}_child_{$this->relativeTbl}", "{{%{$this->closureTbl}}}");
         $this->dropTable("{{%{$this->closureTbl}}}");
     }
 }
