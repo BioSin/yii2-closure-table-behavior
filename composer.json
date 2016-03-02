@@ -1,5 +1,5 @@
 {
-	"name": "valentinek/yii2-closure-table-behavior",
+	"name": "tenga007/yii2-closure-table-behavior",
 	"description": "This extension allows you to get functional for closure table trees.",
 	"keywords": ["yii2", "extension", "behavior", "closure table"],
 	"homepage": "https://github.com/BioSin/yii2-closure-table-behavior",
@@ -10,6 +10,11 @@
 			"name": "Valentin Konusov",
 			"email": "mail@valentinek.ru",
             "role": "Developer"
+		},
+		{
+			"name": "Tenga",
+			"email": "tenga@email.su",
+			"role": "Developer"
 		}
 	],
     "support": {
